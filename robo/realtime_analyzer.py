@@ -10,7 +10,7 @@ print("--- 🚀 실시간 속도 분석기 시작 ---")
 
 try:
     # 1. 저장된 모델 불러오기
-    model_filename = "speed_classifier.joblib"
+    model_filename = "speed_classifier_augmented.joblib"
     model = joblib.load(model_filename)
     print(f"✅ 모델 '{model_filename}' 로드 완료!")
 except FileNotFoundError:
