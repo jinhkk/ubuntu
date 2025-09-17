@@ -1,45 +1,54 @@
-# realtime_analyzer.py
+# realtime_analyzer.py (임계값 수동 조정 버전)
 
 import cv2
 import mediapipe as mp
 import numpy as np
 import joblib
-from collections import deque # 최근 데이터를 저장하기 위한 deque 추가
+from collections import deque
+from PIL import ImageFont, ImageDraw, Image
+import platform
 
-print("--- 🚀 실시간 속도 분석기 시작 ---")
+print("--- 🚀 실시간 속도 분석기 시작 (임계값 조정 버전) ---")
 
 try:
+    model_filename = "speed_classifier.joblib"
     # 1. 저장된 모델 불러오기
     model_filename = "speed_classifier_augmented.joblib"
     model = joblib.load(model_filename)
     print(f"✅ 모델 '{model_filename}' 로드 완료!")
 except FileNotFoundError:
-    print(f"🚨 오류: 모델 파일('{model_filename}')을 찾을 수 없습니다. 'train_model.py'를 먼저 실행해주세요.")
+    print(f"🚨 오류: 모델 파일('{model_filename}')을 찾을 수 없습니다.")
     exit()
 
-# MediaPipe Pose 모델 초기화
-mp_pose = mp.solutions.pose
-pose = mp_pose.Pose()
-mp_drawing = mp.solutions.drawing_utils
+# --- 🔽 모델의 원래 임계값 계산 🔽 ---
+original_threshold = 0
+if hasattr(model, 'coef_') and hasattr(model, 'intercept_'):
+    if model.coef_[0][0] != 0:
+        original_threshold = -model.intercept_[0] / model.coef_[0][0]
+        print(f"로드된 모델의 원래 임계값: {original_threshold:.5f}")
 
-# 2. 웹캠 열기
-cap = cv2.VideoCapture(0) # 0은 기본 웹캠을 의미합니다.
-if not cap.isOpened():
-    print("🚨 오류: 웹캠을 열 수 없습니다.")
-    exit()
+# --- 🔽 사용자가 원하는 새로운 임계값 설정 🔽 ---
+ADJUSTMENT_FACTOR = 1.5 # 이 값을 2.0 (2배), 1.5 (1.5배) 등으로 조절 가능
+adjusted_threshold = original_threshold * ADJUSTMENT_FACTOR
+print(f"사용자 조정 임계값 ({ADJUSTMENT_FACTOR}배): {adjusted_threshold:.5f}")
 
-# 3. 실시간 분석을 위한 변수 초기화
-prev_landmarks = None
-# 최근 30 프레임의 속도 데이터를 저장할 공간 (약 1초 분량)
-recent_velocities = deque(maxlen=30) 
 
-KEY_JOINTS_TO_TRACK = [
-    mp_pose.PoseLandmark.LEFT_WRIST, 
-    mp_pose.PoseLandmark.RIGHT_WRIST,
-    mp_pose.PoseLandmark.LEFT_ELBOW,
-    mp_pose.PoseLandmark.RIGHT_ELBOW
-]
-
+# (이하 폰트 설정 및 웹캠 초기화 코드는 이전과 동일)
+font_path = None; os_name = platform.system()
+if os_name == "Darwin": font_path = "/System/Library/Fonts/Supplemental/AppleGothic.ttf"
+elif os_name == "Linux": font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
+try:
+    if font_path:
+        font = ImageFont.truetype(font_path, 30); status_font = ImageFont.truetype(font_path, 40)
+        print(f"✅ 폰트 로드 완료: {font_path} ({os_name})")
+    else: raise OSError
+except OSError:
+    print(f"🚨 경고: {os_name}에서 한글 폰트를 찾을 수 없습니다. 영문으로만 표시합니다."); font = None
+mp_pose = mp.solutions.pose; pose = mp_pose.Pose(); mp_drawing = mp.solutions.drawing_utils
+cap = cv2.VideoCapture(1);
+if not cap.isOpened(): print("🚨 오류: 웹캠을 열 수 없습니다."); exit()
+prev_landmarks = None; recent_velocities = deque(maxlen=30) 
+KEY_JOINTS_TO_TRACK = [mp_pose.PoseLandmark.LEFT_WRIST, mp_pose.PoseLandmark.RIGHT_WRIST, mp_pose.PoseLandmark.LEFT_ELBOW, mp_pose.PoseLandmark.RIGHT_ELBOW]
 print("👀 웹캠 분석을 시작합니다. 종료하려면 'q' 키를 누르세요.")
 
 while cap.isOpened():
@@ -47,11 +56,7 @@ while cap.isOpened():
     if not ret:
         break
 
-    # 4. 웹캠 영상 처리
-    # 거울 모드처럼 보이도록 좌우 반전
     frame = cv2.flip(frame, 1)
-    
-    # MediaPipe 처리를 위해 이미지 포맷 변경
     image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = pose.process(image_rgb)
 
