@@ -1,19 +1,21 @@
+# train_model.py
+
 import cv2
 import mediapipe as mp
 import numpy as np
 from pathlib import Path
-# --- 🔽 모델을 SVC에서 LogisticRegression으로 변경 🔽 ---
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-import pandas as pd
-import sklearn
+import joblib # 모델 저장을 위해 joblib 추가
+
+print("--- 🚀 모델 학습 스크립트 시작 ---")
 
 # MediaPipe Pose 모델 초기화
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
-mp_drawing = mp.solutions.drawing_utils
 
 def calculate_speed(video_path):
+    # 이전과 동일한 calculate_speed 함수
     video_path_str = str(video_path)
     cap = cv2.VideoCapture(video_path_str)
     if not cap.isOpened(): return None
@@ -45,7 +47,6 @@ def calculate_speed(video_path):
 
 if __name__ == '__main__':
     try:
-        print("--- 🚀 속도 분석 및 모델 학습 스크립트 시작 (LogisticRegression 사용) ---")
         # 1. 경로 설정 및 파일 로드
         script_dir = Path(__file__).resolve().parent
         fast_dir = script_dir / 'fast'
@@ -53,7 +54,7 @@ if __name__ == '__main__':
         fast_video_paths = sorted(list(fast_dir.glob('*.mp4')))
         slow_video_paths = sorted(list(slow_dir.glob('*.mp4')))
         if not fast_video_paths or not slow_video_paths:
-            raise ValueError(f"영상 파일을 찾을 수 없습니다. '{fast_dir}' 와 '{slow_dir}' 폴더를 확인해주세요.")
+            raise ValueError(f"영상 파일을 찾을 수 없습니다.")
 
         # 2. 특징 추출
         print("\n--- 📊 특징 추출 진행 ---")
@@ -65,24 +66,26 @@ if __name__ == '__main__':
         X = np.array(fast_scores + slow_scores).reshape(-1, 1)
         y = np.array([1] * len(fast_scores) + [0] * len(slow_scores))
 
-        # 4. 모델 학습 (SVC 대신 LogisticRegression 사용)
+        # 4. 모델 학습
         print("\n--- 🤖 LogisticRegression 모델 학습 시작 ---")
         model = LogisticRegression(random_state=42)
         model.fit(X, y)
         print("✅ 모델 학습 완료!")
 
-        # 5. 모델 평가
-        print("\n--- 🧠 모델 분석 및 평가 ---")
+        # 5. 모델 성능 평가 (학습 데이터 기준)
         y_pred = model.predict(X)
         accuracy = accuracy_score(y, y_pred)
         print(f"학습 데이터에 대한 예측 정확도: {accuracy * 100:.2f}%")
         
-        # 6. 새로운 데이터 예측 예시
-        new_score = np.array([[0.025]])
-        prediction = model.predict(new_score)
-        result = "빠름" if prediction[0] == 1 else "느림"
-        print(f"\n--- ✨ 새로운 데이터 예측 테스트 ---")
-        print(f"속도 점수 {new_score[0][0]} 에 대한 모델의 예측: '{result}'")
+        if model.coef_[0][0] != 0:
+            decision_boundary = -model.intercept_[0] / model.coef_[0][0]
+            print(f"모델이 학습한 결정 경계(Threshold): {decision_boundary:.5f}")
+
+        # 6. 모델 파일로 저장
+        model_filename = "speed_classifier.joblib"
+        joblib.dump(model, model_filename)
+        print(f"\n--- 💾 모델 저장 완료 ---")
+        print(f"학습된 모델이 '{model_filename}' 파일로 저장되었습니다.")
 
     except Exception as e:
         print(f"\n--- 🚨 오류 발생 🚨 ---")
