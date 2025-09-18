@@ -47,7 +47,11 @@ mp_pose = mp.solutions.pose; pose = mp_pose.Pose(); mp_drawing = mp.solutions.dr
 cap = cv2.VideoCapture(1);
 if not cap.isOpened(): print("오류: 웹캠을 열 수 없습니다."); exit()
 prev_landmarks = None; recent_velocities = deque(maxlen=30) 
-KEY_JOINTS_TO_TRACK = [mp_pose.PoseLandmark.LEFT_WRIST, mp_pose.PoseLandmark.RIGHT_WRIST, mp_pose.PoseLandmark.LEFT_ELBOW, mp_pose.PoseLandmark.RIGHT_ELBOW]
+KEY_JOINTS_TO_TRACK = [
+    mp_pose.PoseLandmark.LEFT_WRIST, 
+    mp_pose.PoseLandmark.RIGHT_WRIST, 
+    mp_pose.PoseLandmark.LEFT_ELBOW, 
+    mp_pose.PoseLandmark.RIGHT_ELBOW]
 print("웹캠 분석을 시작합니다. 종료하려면 'q' 키를 누르세요.")
 
 while cap.isOpened():

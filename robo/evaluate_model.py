@@ -20,8 +20,10 @@ def calculate_speed(video_path):
     velocities = []
     prev_landmarks = None
     KEY_JOINTS_TO_TRACK = [
-        mp_pose.PoseLandmark.LEFT_WRIST, mp_pose.PoseLandmark.RIGHT_WRIST,
-        mp_pose.PoseLandmark.LEFT_ELBOW, mp_pose.PoseLandmark.RIGHT_ELBOW
+        mp_pose.PoseLandmark.LEFT_WRIST, 
+        mp_pose.PoseLandmark.RIGHT_WRIST,
+        mp_pose.PoseLandmark.LEFT_ELBOW, 
+        mp_pose.PoseLandmark.RIGHT_ELBOW
     ]
     while cap.isOpened():
         ret, frame = cap.read()
