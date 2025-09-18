@@ -8,48 +8,47 @@ from collections import deque
 from PIL import ImageFont, ImageDraw, Image
 import platform
 
-print("--- 🚀 실시간 속도 분석기 시작 (임계값 조정 버전) ---")
+print("--- 실시간 속도 분석기 시작 (임계값 조정 버전) ---")
 
 try:
     model_filename = "speed_classifier.joblib"
     # 1. 저장된 모델 불러오기
     model_filename = "speed_classifier_augmented.joblib"
     model = joblib.load(model_filename)
-    print(f"✅ 모델 '{model_filename}' 로드 완료!")
+    print(f"모델 '{model_filename}' 로드 완료!")
 except FileNotFoundError:
-    print(f"🚨 오류: 모델 파일('{model_filename}')을 찾을 수 없습니다.")
+    print(f"오류: 모델 파일('{model_filename}')을 찾을 수 없습니다.")
     exit()
 
-# --- 🔽 모델의 원래 임계값 계산 🔽 ---
+# ---  모델의 원래 임계값 계산  ---
 original_threshold = 0
 if hasattr(model, 'coef_') and hasattr(model, 'intercept_'):
     if model.coef_[0][0] != 0:
         original_threshold = -model.intercept_[0] / model.coef_[0][0]
         print(f"로드된 모델의 원래 임계값: {original_threshold:.5f}")
 
-# --- 🔽 사용자가 원하는 새로운 임계값 설정 🔽 ---
+# ---  사용자가 원하는 새로운 임계값 설정  ---
 ADJUSTMENT_FACTOR = 1.5 # 이 값을 2.0 (2배), 1.5 (1.5배) 등으로 조절 가능
 adjusted_threshold = original_threshold * ADJUSTMENT_FACTOR
 print(f"사용자 조정 임계값 ({ADJUSTMENT_FACTOR}배): {adjusted_threshold:.5f}")
 
 
-# (이하 폰트 설정 및 웹캠 초기화 코드는 이전과 동일)
 font_path = None; os_name = platform.system()
 if os_name == "Darwin": font_path = "/System/Library/Fonts/Supplemental/AppleGothic.ttf"
 elif os_name == "Linux": font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 try:
     if font_path:
         font = ImageFont.truetype(font_path, 30); status_font = ImageFont.truetype(font_path, 40)
-        print(f"✅ 폰트 로드 완료: {font_path} ({os_name})")
+        print(f" 폰트 로드 완료: {font_path} ({os_name})")
     else: raise OSError
 except OSError:
-    print(f"🚨 경고: {os_name}에서 한글 폰트를 찾을 수 없습니다. 영문으로만 표시합니다."); font = None
+    print(f"경고: {os_name}에서 한글 폰트를 찾을 수 없습니다. 영문으로만 표시합니다."); font = None
 mp_pose = mp.solutions.pose; pose = mp_pose.Pose(); mp_drawing = mp.solutions.drawing_utils
 cap = cv2.VideoCapture(1);
-if not cap.isOpened(): print("🚨 오류: 웹캠을 열 수 없습니다."); exit()
+if not cap.isOpened(): print("오류: 웹캠을 열 수 없습니다."); exit()
 prev_landmarks = None; recent_velocities = deque(maxlen=30) 
 KEY_JOINTS_TO_TRACK = [mp_pose.PoseLandmark.LEFT_WRIST, mp_pose.PoseLandmark.RIGHT_WRIST, mp_pose.PoseLandmark.LEFT_ELBOW, mp_pose.PoseLandmark.RIGHT_ELBOW]
-print("👀 웹캠 분석을 시작합니다. 종료하려면 'q' 키를 누르세요.")
+print("웹캠 분석을 시작합니다. 종료하려면 'q' 키를 누르세요.")
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -117,4 +116,4 @@ while cap.isOpened():
 # 8. 자원 해제
 cap.release()
 cv2.destroyAllWindows()
-print("--- 🚀 분석기 종료 ---")
+print("--- 분석기 종료 ---")
