@@ -2,7 +2,6 @@ import cv2
 import mediapipe as mp
 import numpy as np
 from pathlib import Path
-# --- 🔽 모델을 SVC에서 LogisticRegression으로 변경 🔽 ---
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 import pandas as pd

@@ -25,7 +25,6 @@ if hasattr(model, 'coef_') and hasattr(model, 'intercept_'):
         original_threshold = -model.intercept_[0] / model.coef_[0][0]
         print(f"로드된 모델의 원래 임계값: {original_threshold:.5f}")
 
-# --- 🔽 사용자가 원하는 새로운 임계값 설정 🔽 ---
 ADJUSTMENT_FACTOR = 1.5 # 이 값을 2.0 (2배), 1.5 (1.5배) 등으로 조절 가능
 adjusted_threshold = original_threshold * ADJUSTMENT_FACTOR
 print(f"사용자 조정 임계값 ({ADJUSTMENT_FACTOR}배): {adjusted_threshold:.5f}")
@@ -43,7 +42,7 @@ try:
 except OSError:
     print(f"🚨 경고: {os_name}에서 한글 폰트를 찾을 수 없습니다. 영문으로만 표시합니다."); font = None
 mp_pose = mp.solutions.pose; pose = mp_pose.Pose(); mp_drawing = mp.solutions.drawing_utils
-cap = cv2.VideoCapture(1);
+cap = cv2.VideoCapture(1);   # Mac = 1 웹캠 연결 시 (0) 으로 변경 필
 if not cap.isOpened(): print("🚨 오류: 웹캠을 열 수 없습니다."); exit()
 prev_landmarks = None; recent_velocities = deque(maxlen=30) 
 KEY_JOINTS_TO_TRACK = [mp_pose.PoseLandmark.LEFT_WRIST, mp_pose.PoseLandmark.RIGHT_WRIST, mp_pose.PoseLandmark.LEFT_ELBOW, mp_pose.PoseLandmark.RIGHT_ELBOW]
