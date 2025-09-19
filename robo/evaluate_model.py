@@ -6,7 +6,7 @@ import numpy as np
 from pathlib import Path
 import joblib # 모델 로드를 위해 joblib 추가
 
-print("--- 🚀 모델 평가 스크립트 시작 ---")
+print("--- 모델 평가 스크립트 시작 ---")
 
 # MediaPipe Pose 모델 초기화
 mp_pose = mp.solutions.pose
@@ -20,8 +20,10 @@ def calculate_speed(video_path):
     velocities = []
     prev_landmarks = None
     KEY_JOINTS_TO_TRACK = [
-        mp_pose.PoseLandmark.LEFT_WRIST, mp_pose.PoseLandmark.RIGHT_WRIST,
-        mp_pose.PoseLandmark.LEFT_ELBOW, mp_pose.PoseLandmark.RIGHT_ELBOW
+        mp_pose.PoseLandmark.LEFT_WRIST, 
+        mp_pose.PoseLandmark.RIGHT_WRIST,
+        mp_pose.PoseLandmark.LEFT_ELBOW, 
+        mp_pose.PoseLandmark.RIGHT_ELBOW
     ]
     while cap.isOpened():
         ret, frame = cap.read()
@@ -47,16 +49,16 @@ if __name__ == '__main__':
     try:
         # 1. 저장된 모델 불러오기
         model_filename = "speed_classifier.joblib"
-        print(f"--- 💾 저장된 모델 '{model_filename}' 로드 중... ---")
+        print(f"--- 저장된 모델 '{model_filename}' 로드 중... ---")
         model = joblib.load(model_filename)
-        print("✅ 모델 로드 완료!")
+        print("모델 로드 완료!")
 
         # 2. 평가할 새로운 영상 지정
         # fast 폴더의 1번 영상을 새로운 데이터라고 가정하고 테스트
         script_dir = Path(__file__).resolve().parent
         new_video_path = script_dir / 'fast' / 'fast3.mp4' 
         # (다른 영상을 테스트하고 싶으면 이 경로를 바꾸세요)
-        print(f"\n--- 🎞️ 새로운 영상 평가: {new_video_path.name} ---")
+        print(f"\n--- 새로운 영상 평가: {new_video_path.name} ---")
 
         # 3. 새로운 영상에서 특징 추출
         new_score = calculate_speed(new_video_path)
@@ -71,12 +73,12 @@ if __name__ == '__main__':
         prediction = model.predict(input_data)
         result = "빠름" if prediction[0] == 1 else "느림"
 
-        print(f"\n--- ✨ 최종 예측 결과 ---")
+        print(f"\n--- 최종 예측 결과 ---")
         print(f"모델의 예측: '{result}'")
 
     except FileNotFoundError:
-        print(f"\n--- 🚨 오류 발생 🚨 ---")
+        print(f"\n--- 오류 발생 ---")
         print(f"모델 파일('{model_filename}')을 찾을 수 없습니다. 'train_model.py'를 먼저 실행하여 모델을 생성해주세요.")
     except Exception as e:
-        print(f"\n--- 🚨 오류 발생 🚨 ---")
+        print(f"\n--- 오류 발생 ---")
         print(f"오류 내용: {e}")
