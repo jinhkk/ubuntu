@@ -15,6 +15,7 @@ from mediapipe.python.solutions import drawing_utils as mp_drawing
 print("--- 단순화된 실시간 분석기 시작 ---")
 
 try:
+    # 'train_simplified_model.py'로 생성된 모델과 스케일러를 불러옵니다.
     model_filename = "speed_classifier_simplified.joblib"
     scaler_filename = "scaler_simplified.joblib"
     model = joblib.load(model_filename)
@@ -94,11 +95,9 @@ while cap.isOpened():
             speed_score = np.mean(recent_velocities)
             jerk_score = np.mean(recent_jerks)
 
+            # 2개의 특징만 사용
             input_features = np.array([[speed_score, jerk_score]])
             input_features_scaled = scaler.transform(input_features)
-
-            print(f"Scaled Features -> Speed: {input_features_scaled[0][0]:.2f}, Jerk: {input_features_scaled[0][1]:.2f}, Area: {input_features_scaled[0][2]:.2f}")
-
             prediction = model.predict(input_features_scaled)
 
             if prediction[0] == 1:
