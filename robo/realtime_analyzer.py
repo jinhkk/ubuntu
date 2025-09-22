@@ -43,7 +43,7 @@ try:
 except OSError:
     print(f"경고: {os_name}에서 한글 폰트를 찾을 수 없습니다. 영문으로만 표시합니다."); font = None
 mp_pose = mp.solutions.pose; pose = mp_pose.Pose(); mp_drawing = mp.solutions.drawing_utils
-cap = cv2.VideoCapture(1);   # Mac = 1 웹캠 연결 시 (0) 으로 변경 필
+cap = cv2.VideoCapture(0);   # Mac = 1 웹캠 연결 시 (0) 으로 변경 필
 if not cap.isOpened(): print("오류: 웹캠을 열 수 없습니다."); exit()
 prev_landmarks = None; recent_velocities = deque(maxlen=30) 
 KEY_JOINTS_TO_TRACK = [
