@@ -27,7 +27,7 @@ if hasattr(model, 'coef_') and hasattr(model, 'intercept_'):
         original_threshold = -model.intercept_[0] / model.coef_[0][0]
         print(f"로드된 모델의 원래 임계값: {original_threshold:.5f}")
 
-ADJUSTMENT_FACTOR = 1.5 # 이 값을 2.0 (2배), 1.5 (1.5배) 등으로 조절 가능
+ADJUSTMENT_FACTOR = 1.25 # 이 값을 2.0 (2배), 1.5 (1.5배) 등으로 조절 가능
 adjusted_threshold = original_threshold * ADJUSTMENT_FACTOR
 print(f"사용자 조정 임계값 ({ADJUSTMENT_FACTOR}배): {adjusted_threshold:.5f}")
 
@@ -93,8 +93,14 @@ while cap.isOpened():
             current_speed_score = np.mean(recent_velocities)
             
             # 모델로 예측
-            prediction = model.predict(np.array([[current_speed_score]]))
-            status = "fast" if prediction[0] == 1 else "slow"
+            # prediction = model.predict(np.array([[current_speed_score]]))
+            # status = "fast" if prediction[0] == 1 else "slow"
+
+            # 조정 임계로 계산
+            if current_speed_score > adjusted_threshold:
+                status = "fast"
+            else:
+                status = "slow"
 
     # 7. 결과 화면에 표시
     # 상태 표시를 위한 배경 사각형
