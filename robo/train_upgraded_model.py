@@ -19,7 +19,10 @@ def calculate_features(video_path):
     if not cap.isOpened(): return None
     velocities, jerks, joint_positions = [], [], []
     prev_landmarks, prev_velocity = None, 0
-    KEY_JOINTS_TO_TRACK = [mp_pose.PoseLandmark.LEFT_WRIST, mp_pose.PoseLandmark.RIGHT_WRIST, mp_pose.PoseLandmark.LEFT_ELBOW, mp_pose.PoseLandmark.RIGHT_ELBOW]
+    KEY_JOINTS_TO_TRACK = [mp_pose.PoseLandmark.LEFT_WRIST, 
+                           mp_pose.PoseLandmark.RIGHT_WRIST, 
+                           mp_pose.PoseLandmark.LEFT_ELBOW, 
+                           mp_pose.PoseLandmark.RIGHT_ELBOW]
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret: break

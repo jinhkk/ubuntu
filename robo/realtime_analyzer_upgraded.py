@@ -99,6 +99,9 @@ while cap.isOpened():
             
             input_features = np.array([[speed_score, jerk_score, area_score]])
             input_features_scaled = scaler.transform(input_features)
+
+            print(f"Scaled Features -> Speed: {input_features_scaled[0][0]:.2f}, Jerk: {input_features_scaled[0][1]:.2f}, Area: {input_features_scaled[0][2]:.2f}")
+
             prediction = model.predict(input_features_scaled)
             
             if prediction[0] == 1: status_kr, status_en = "빠름", "Fast"
