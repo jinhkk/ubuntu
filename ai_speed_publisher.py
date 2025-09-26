@@ -53,7 +53,7 @@ class AiSpeedPublisher(Node):
 
         frame = cv2.flip(frame, 1)
         image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = pose.process(image_rgb)
+        results = self.pose.process(image_rgb)
         
         status_en = "unknown"
 

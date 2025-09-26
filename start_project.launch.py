@@ -12,7 +12,7 @@ def generate_launch_description():
     # 1. 로봇 IP 주소를 입력받기 위한 인자(argument) 선언
     declare_robot_ip_arg = DeclareLaunchArgument(
         'robot_ip',
-        default_value='172.16.30.100', # 기본값
+        default_value='172.16.31.8', # 기본값
         description='IP address of the robot'
     )
 
